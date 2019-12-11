@@ -21,13 +21,27 @@
       .byWho {
         align-self: flex-end;
       }
-      .pA table {
+      .tables {
+        display: flex;
       }
-      .pA caption {
+      .common-table table {
+        border-collapse: collapse;
+        border: 1px solid grey;
+        margin-right: 30px;
+        empty-cells: show;
+      }
+      .common-table .border_bottom td {
+        border-bottom: 1px solid black;
+      }
+      .common-table caption {
         width: 200px;
+        height: 3em;
       }
-      .pA td {
+      .common-table td {
         text-align: right;
+      }
+      .common-table.pB caption {
+        width: 300px;
       }
     </style>
   </head>
@@ -39,20 +53,41 @@
         Группа: ПБВ-82<br />
         Вариант: 8<br />
       </div>
-      <div class="pA">
-        <table>
-          <caption>
-            Таблица значений функции:
-          </caption>
-          <tr>
-            <td>x</td>
-            <td>f(x)</td>
-          </tr>
-          <tr v-for="(item,index) in tabl1">
-            <td>{{item[0]}}</td>
-            <td>{{item[1]}}</td>
-          </tr>
-        </table>
+      <div class="tables">
+        <div class="pA common-table">
+          <table>
+            <caption>
+              Таблица значений функции:
+            </caption>
+            <tr class="border_bottom">
+              <td>x</td>
+              <td>f(x)</td>
+            </tr>
+            <tr v-for="item in tabl1">
+              <td>{{item[0]}}</td>
+              <td>{{item[1]}}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="pB common-table">
+          <table>
+            <caption>
+              Таблица точных и приближенных значений производной функции:
+            </caption>
+            <tr class="border_bottom">
+              <td>x</td>
+              <td>f '(x)</td>
+              <td>~f '(x)</td>
+            </tr>
+            <tr class="emptyRow"><td></td><td></td><td>&nbsp;</td></tr>
+            <tr v-for="item in tabl2">
+              <td>{{item[0]}}</td>
+              <td>{{item[1]}}</td>
+              <td>{{item[2]}}</td>
+            </tr>
+            <tr class="emptyRow"><td></td><td></td><td>&nbsp;</td></tr>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -65,22 +100,37 @@
           h: 0.3,
           tabl1Start: 8.7,
           tabl1End: 13.8,
+          tabl2Start: 9,
+          tabl2End: 13.5,
           tabl1: [],
+          tabl2: []
         },
         methods: {
           countTabl1() {
             let index = 0;
-            for (let i = this.tabl1Start; i <= this.tabl1End+0.1; i += this.h) {
-              let f = (1 / 9) * Math.sin(9 * i);
-              this.tabl1[index] = [i, f];
+            for (let i = this.tabl1Start; i <= this.tabl1End + 0.1; i += this.h) {
+              let x = +i.toFixed(1);
+              let f = +((1 / 9) * Math.sin(9 * i)).toFixed(4);
+              this.tabl1.push([x, f]);
               index++;
             }
           },
+          countTabl2() {
+            for (let i = 1; i < this.tabl1.length - 1; i++) {
+              //let f =   //TODO Посчитать производную
+              let df = (this.tabl1[i + 1][1] - this.tabl1[i - 1][1]) / (2 * this.h);
+              df = +df.toFixed(4);
+              let newArr = this.tabl1[i];
+              newArr.push(df);
+              this.tabl2.push(newArr);
+            }
+          }
         },
         computed: {},
         mounted() {
           this.countTabl1();
-        },
+          this.countTabl2();
+        }
       });
     </script>
   </body>
